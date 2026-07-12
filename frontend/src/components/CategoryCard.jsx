@@ -21,7 +21,7 @@ const CategoryCard = ({
           src={image}
           alt={name}
           loading="lazy"
-          className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
         />
         {/* Subtle hover gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

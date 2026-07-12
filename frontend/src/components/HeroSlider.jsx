@@ -70,12 +70,12 @@ const HeroSlider = ({ banners = DEFAULT_BANNERS, autoPlay = true, interval = 500
           transition={{ duration: 0.6, ease: 'easeInOut' }}
           className="absolute inset-0 w-full h-full"
         >
-          {/* Background Image with grayscale overlay */}
+          {/* Background Image overlay */}
           <div className="absolute inset-0 bg-black/40 z-10" />
           <img
             src={banners[current].image}
             alt={banners[current].title}
-            className="w-full h-full object-cover grayscale opacity-90"
+            className="w-full h-full object-cover opacity-90"
           />
 
           {/* Banner Contents */}

@@ -70,7 +70,7 @@ const ProductCard = ({
           src={imageUrl}
           alt={name}
           loading="lazy"
-          className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-102 transition-all duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
         />
         
         {/* Quick View Hover overlay action */}
