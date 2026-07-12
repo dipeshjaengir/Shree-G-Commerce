@@ -131,7 +131,11 @@ const generateProductsList = (categoryIds) => {
 const runSeeder = async () => {
   try {
     console.log('Connecting to database...');
-    await mongoose.connect(process.env.MONGO_URI);
+    let mongoUri = process.env.MONGO_URI;
+    if (mongoUri) {
+      mongoUri = mongoUri.trim().replace(/^["']|["']$/g, '');
+    }
+    await mongoose.connect(mongoUri);
     console.log('Connected to MongoDB Atlas.');
 
     const args = process.argv.slice(2);
