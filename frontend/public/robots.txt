@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /api/v1/
+
+Sitemap: https://shree-g-commerce.vercel.app/sitemap.xml
