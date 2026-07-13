@@ -176,9 +176,6 @@ const MartLayout = () => {
                     {isAuthenticated ? (
                       <>
                         <Link to="/mart/profile" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">My Account</Link>
-                        {user && ['superadmin', 'manager', 'staff'].includes(user.role) && (
-                          <Link to="/admin" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">Admin Console</Link>
-                        )}
                         <hr className="border-zinc-100" />
                         <button 
                           onClick={handleLogout}
@@ -252,7 +249,6 @@ const MartLayout = () => {
                   <Link to="/mart/wishlist" onClick={() => setShowMobileMenu(false)} className="hover:text-zinc-500">Wishlist</Link>
                   <Link to="/mart/cart" onClick={() => setShowMobileMenu(false)} className="hover:text-zinc-500">Cart</Link>
                   <Link to="/mart/profile" onClick={() => setShowMobileMenu(false)} className="hover:text-zinc-500">Profile</Link>
-                  <Link to="/admin" onClick={() => setShowMobileMenu(false)} className="text-zinc-400 hover:text-black">Admin Panel</Link>
                 </nav>
               </div>
 

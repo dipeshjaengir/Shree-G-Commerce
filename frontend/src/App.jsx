@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import LandingPage from './pages/LandingPage.jsx';
 import ComingSoon from './pages/ComingSoon.jsx';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute.jsx';
 
 // layouts
 import MartLayout from './layouts/MartLayout.jsx';
@@ -94,28 +95,30 @@ function App() {
         </Route>
 
         {/* Admin Console section with Lazy Suspense splits */}
-        <Route 
-          path="/admin" 
-          element={
-            <Suspense fallback={<PageLoader />}>
-              <AdminLayout />
-            </Suspense>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="products" element={<ProductManagement />} />
-          <Route path="categories" element={<CategoryManagement />} />
-          <Route path="orders" element={<OrderManagement />} />
-          <Route path="customers" element={<CustomerManagement />} />
-          <Route path="coupons" element={<CouponManagement />} />
-          <Route path="offers" element={<OfferManagement />} />
-          <Route path="inventory" element={<InventoryManagement />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="banners" element={<BannerManagement />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="profile" element={<AdminProfile />} />
-          <Route path="notifications" element={<NotificationsPage />} />
-          <Route path="logs" element={<ActivityLogs />} />
+        <Route element={<ProtectedAdminRoute />}>
+          <Route 
+            path="/admin" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <AdminLayout />
+              </Suspense>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<ProductManagement />} />
+            <Route path="categories" element={<CategoryManagement />} />
+            <Route path="orders" element={<OrderManagement />} />
+            <Route path="customers" element={<CustomerManagement />} />
+            <Route path="coupons" element={<CouponManagement />} />
+            <Route path="offers" element={<OfferManagement />} />
+            <Route path="inventory" element={<InventoryManagement />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="banners" element={<BannerManagement />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="profile" element={<AdminProfile />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="logs" element={<ActivityLogs />} />
+          </Route>
         </Route>
 
         {/* Fallback to landing */}

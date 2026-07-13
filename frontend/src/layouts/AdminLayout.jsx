@@ -6,10 +6,15 @@ import {
   IoStatsChartOutline, IoImagesOutline, IoSettingsOutline, IoPersonCircleOutline, 
   IoLayersOutline, IoNotificationsOutline, IoReaderOutline, IoLogOutOutline, IoArrowBackOutline 
 } from 'react-icons/io5';
+import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../redux/slices/authSlice.js';
+import { toast } from 'react-hot-toast';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   const sidebarLinks = [
     { name: 'Dashboard', path: '/admin', icon: IoGridOutline },
@@ -71,9 +76,14 @@ const AdminLayout = () => {
         {/* Footer Logout */}
         <div className="p-4 border-t border-zinc-900">
           <button 
-            onClick={() => {
-              alert('Logging out...');
-              navigate('/');
+            onClick={async () => {
+              try {
+                await dispatch(logoutUser()).unwrap();
+                toast.success('Logged out successfully.');
+                navigate('/login');
+              } catch (err) {
+                toast.error('Logout failed.');
+              }
             }}
             className="w-full flex items-center gap-3 px-3 py-2 text-xs tracking-wider font-light text-red-400 hover:text-red-300 hover:bg-zinc-900 transition-all"
           >
@@ -91,9 +101,9 @@ const AdminLayout = () => {
             {sidebarLinks.find(link => link.path === location.pathname)?.name || 'Admin Console'}
           </h2>
           <div className="flex items-center gap-4">
-            <span className="text-[10px] tracking-wider text-zinc-500">Welcome, Super Admin</span>
-            <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-xs">
-              SA
+            <span className="text-[10px] tracking-wider text-zinc-500">Welcome, {user?.name || 'Admin'}</span>
+            <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-xs uppercase">
+              {user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'A'}
             </div>
           </div>
         </header>

@@ -156,18 +156,28 @@ export const createOrder = async (req, res, next) => {
 // 2. GET USER ORDERS HISTORY (Paginated)
 export const getMyOrders = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, isAdmin } = req.query;
 
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = parseInt(limit, 10) || 10;
     const skipNum = (pageNum - 1) * limitNum;
 
+    let query = { user: req.user._id };
+
+    if (isAdmin === 'true') {
+      const allowedRoles = ['super_admin', 'admin', 'manager', 'staff'];
+      if (!allowedRoles.includes(req.user.role)) {
+        return next(new AuthorizationError(`Access Forbidden: Role '${req.user.role}' is unauthorized to query all orders.`));
+      }
+      query = {};
+    }
+
     const [orders, totalDocs] = await Promise.all([
-      Order.find({ user: req.user._id })
+      Order.find(query)
         .sort({ createdAt: -1 })
         .skip(skipNum)
         .limit(limitNum),
-      Order.countDocuments({ user: req.user._id })
+      Order.countDocuments(query)
     ]);
 
     const totalPages = Math.ceil(totalDocs / limitNum);

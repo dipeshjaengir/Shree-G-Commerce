@@ -36,12 +36,38 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
+import User from './models/User.js';
+
 // Initialize Express App
 const app = express();
 
 // 1. Connect to Database & Bootstrap settings
-connectDB().then(() => {
+connectDB().then(async () => {
   initializeSettings();
+  
+  // Ensure default super admin exists
+  try {
+    const adminEmail = 'dipeshjangir12@gmail.com';
+    const existingAdmin = await User.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      const superAdmin = new User({
+        name: 'Dipesh Jangir',
+        email: adminEmail,
+        password: 'dipesh1234.@',
+        phone: '9876543210',
+        role: 'super_admin'
+      });
+      await superAdmin.save();
+      logger.info('Default Super Admin account created successfully.');
+    } else {
+      existingAdmin.password = 'dipesh1234.@';
+      existingAdmin.role = 'super_admin';
+      await existingAdmin.save();
+      logger.info('Default Super Admin account synchronized.');
+    }
+  } catch (err) {
+    logger.error(`Failed to seed/sync default Super Admin: ${err.message}`);
+  }
 });
 
 // 2. Global Middlewares
