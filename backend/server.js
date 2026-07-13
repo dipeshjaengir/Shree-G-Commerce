@@ -45,7 +45,7 @@ const app = express();
 connectDB().then(async () => {
   initializeSettings();
   
-  // Ensure default super admin exists
+  // Ensure default super admin exists (One-time bootstrap bootstrap mechanism only)
   try {
     const adminEmail = 'dipeshjangir12@gmail.com';
     const existingAdmin = await User.findOne({ email: adminEmail });
@@ -60,13 +60,10 @@ connectDB().then(async () => {
       await superAdmin.save();
       logger.info('Default Super Admin account created successfully.');
     } else {
-      existingAdmin.password = 'dipesh1234.@';
-      existingAdmin.role = 'super_admin';
-      await existingAdmin.save();
-      logger.info('Default Super Admin account synchronized.');
+      logger.info('Super Admin already exists. Seeder skipped.');
     }
   } catch (err) {
-    logger.error(`Failed to seed/sync default Super Admin: ${err.message}`);
+    logger.error(`Failed to seed default Super Admin: ${err.message}`);
   }
 });
 
