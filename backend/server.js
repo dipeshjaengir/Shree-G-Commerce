@@ -132,10 +132,55 @@ app.all('*', (req, res, next) => {
 // 5. Global Error Handler Middleware
 app.use(errorHandler);
 
+// Helper to format and print all mounted Express routes for diagnostics
+const printAllRoutes = (app) => {
+  const routes = [];
+  
+  function split(thing) {
+    if (typeof thing === 'string') {
+      return thing;
+    } else if (thing.fast_slash) {
+      return '';
+    } else {
+      const regexStr = thing.toString().replace(/^\/|\/[a-z]*$/gi, '');
+      const match = regexStr.match(/^\^?\\\/([a-zA-Z0-9_\\\/-]+?)(?:\\\/\?)?(?=\\\/\?|\(\?=\\\/\|\$\)|$)/);
+      return match ? match[1].replace(/\\/g, '') : '';
+    }
+  }
+
+  function print(path, layer) {
+    if (layer.route) {
+      layer.route.stack.forEach((stack) => {
+        const method = stack.method ? stack.method.toUpperCase() : 'ALL';
+        routes.push(`${method} ${path}${layer.route.path}`);
+      });
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      layer.handle.stack.forEach((subLayer) => {
+        print(path + '/' + split(layer.regexp), subLayer);
+      });
+    }
+  }
+
+  app._router.stack.forEach((layer) => {
+    print('', layer);
+  });
+  
+  const cleanRoutes = [...new Set(routes)]
+    .map(r => r.replace(/\/+/g, '/'))
+    .filter(r => r.includes('/api'));
+    
+  logger.info(`Mounted Express API routes:\n${cleanRoutes.map(r => `  - ${r}`).join('\n')}`);
+};
+
 // Listen to Port
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  try {
+    printAllRoutes(app);
+  } catch (err) {
+    logger.error(`Failed to print routes: ${err.message}`);
+  }
 });
 
 // Graceful Shutdown Handler
