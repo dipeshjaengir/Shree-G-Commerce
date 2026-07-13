@@ -10,9 +10,14 @@ import Button from '../../components/Button.jsx';
 import Badge from '../../components/Badge.jsx';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_BRANDS } from '../../utils/mockData.js';
 import useSEO from '../../hooks/useSEO.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCartThunk } from '../../redux/slices/cartSlice.js';
+import { toast } from 'react-hot-toast';
 
 const MartHome = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   useSEO({
     title: 'Premium Grocery Mart',
@@ -189,7 +194,7 @@ const MartHome = () => {
               <img
                 src={selectedProduct.images[0]}
                 alt={selectedProduct.name}
-                className="w-full h-full object-cover grayscale"
+                className="w-full h-full object-cover"
               />
             </div>
 
@@ -235,8 +240,22 @@ const MartHome = () => {
               {/* CTA Action */}
               <div className="pt-2">
                 <Button 
-                  onClick={() => {
-                    alert(`${selectedProduct.name} added to cart (UI interaction only)`);
+                  onClick={async () => {
+                    if (!isAuthenticated) {
+                      toast.error('Please log in to add items to your cart.');
+                      navigate('/login');
+                      return;
+                    }
+                    try {
+                      const resultAction = await dispatch(addToCartThunk({ productId: selectedProduct._id || selectedProduct.id, quantity: 1 }));
+                      if (addToCartThunk.fulfilled.match(resultAction)) {
+                        toast.success(`${selectedProduct.name} added to cart!`);
+                      } else {
+                        toast.error(resultAction.payload || 'Failed to add item to cart');
+                      }
+                    } catch (err) {
+                      toast.error('An error occurred. Please try again.');
+                    }
                     handleCloseModal();
                   }}
                   className="w-full"
@@ -250,7 +269,7 @@ const MartHome = () => {
                 <button 
                   onClick={() => {
                     handleCloseModal();
-                    navigate(`/mart/product/${selectedProduct.id}`);
+                    navigate(`/mart/product/${selectedProduct._id || selectedProduct.id}`);
                   }}
                   className="text-[9px] tracking-widest text-zinc-400 hover:text-black uppercase border-b border-zinc-300 hover:border-black transition-all pb-0.5"
                 >

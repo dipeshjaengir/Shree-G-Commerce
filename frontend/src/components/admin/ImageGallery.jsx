@@ -19,7 +19,7 @@ const ImageGallery = ({
     <div className={`grid grid-cols-2 sm:grid-cols-4 gap-4 ${className}`}>
       {images.map((src, idx) => (
         <div key={idx} className="bg-white border border-zinc-200 p-2 flex items-center justify-center relative group h-24 overflow-hidden">
-          <img src={src} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300" />
+          <img src={src} alt="" className="w-full h-full object-cover transition-all duration-300" />
           
           {canDelete && onDeleteImage && (
             <button

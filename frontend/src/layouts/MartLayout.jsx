@@ -6,6 +6,11 @@ import {
 } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from '../components/SearchBar.jsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProfile, logoutUser } from '../redux/slices/authSlice.js';
+import { fetchCart } from '../redux/slices/cartSlice.js';
+import { fetchWishlist } from '../redux/slices/wishlistSlice.js';
+import { toast } from 'react-hot-toast';
 
 const CATEGORIES_LIST = [
   { name: 'Atta & Rice', path: '/mart/category/atta-rice' },
@@ -20,10 +25,38 @@ const CATEGORIES_LIST = [
 
 const MartLayout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showCatDropdown, setShowCatDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { items: cartItems = [] } = useSelector((state) => state.cart || {});
+  const { products: wishlistProducts = [] } = useSelector((state) => state.wishlist || {});
+
+  // Fetch user profile on mount to restore session
+  useEffect(() => {
+    dispatch(fetchProfile());
+  }, [dispatch]);
+
+  // Fetch cart & wishlist once authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCart());
+      dispatch(fetchWishlist());
+    }
+  }, [dispatch, isAuthenticated]);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      toast.success('Logged out successfully.');
+      navigate('/login');
+    } catch (err) {
+      toast.error('Logout failed.');
+    }
+  };
 
   // Monitor scroll for sticky shadow
   useEffect(() => {
@@ -105,13 +138,21 @@ const MartLayout = () => {
             {/* Wishlist Link */}
             <Link to="/mart/wishlist" className="relative hover:text-zinc-500 transition-colors" title="Wishlist">
               <IoHeartOutline className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-semibold">0</span>
+              {wishlistProducts.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-semibold">
+                  {wishlistProducts.length}
+                </span>
+              )}
             </Link>
 
             {/* Cart Link */}
             <Link to="/mart/cart" className="relative hover:text-zinc-500 transition-colors" title="Cart">
               <IoCartOutline className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-semibold">0</span>
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-semibold">
+                  {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
+                </span>
+              )}
             </Link>
 
             {/* Profile Dropdown */}
@@ -130,12 +171,28 @@ const MartLayout = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 top-6 bg-white border border-zinc-200 shadow-2xl p-4 w-40 flex flex-col gap-2"
+                    className="absolute right-0 top-6 bg-white border border-zinc-200 shadow-2xl p-4 w-40 flex flex-col gap-2 z-50"
                   >
-                    <Link to="/mart/profile" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">My Account</Link>
-                    <Link to="/admin" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">Admin Console</Link>
-                    <hr className="border-zinc-100" />
-                    <button className="text-[10px] text-red-500 hover:text-red-700 uppercase tracking-wider font-light text-left">Login / Sign In</button>
+                    {isAuthenticated ? (
+                      <>
+                        <Link to="/mart/profile" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">My Account</Link>
+                        {user && ['superadmin', 'manager', 'staff'].includes(user.role) && (
+                          <Link to="/admin" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">Admin Console</Link>
+                        )}
+                        <hr className="border-zinc-100" />
+                        <button 
+                          onClick={handleLogout}
+                          className="text-[10px] text-red-500 hover:text-red-700 uppercase tracking-wider font-light text-left"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link to="/login" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">Login / Sign In</Link>
+                        <Link to="/signup" className="text-[10px] text-zinc-600 hover:text-black uppercase tracking-wider font-light">Register</Link>
+                      </>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

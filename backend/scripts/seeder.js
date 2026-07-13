@@ -133,6 +133,10 @@ const runSeeder = async () => {
     console.log('Connecting to database...');
     let mongoUri = process.env.MONGO_URI;
     if (mongoUri) {
+      const match = mongoUri.match(/(mongodb(?:\+srv)?:\/\/.+)/i);
+      if (match) {
+        mongoUri = match[1];
+      }
       mongoUri = mongoUri.trim().replace(/^["']|["']$/g, '');
     }
     await mongoose.connect(mongoUri);

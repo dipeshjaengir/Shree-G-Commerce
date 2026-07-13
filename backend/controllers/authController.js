@@ -19,12 +19,13 @@ const signToken = (id) => {
 const sendTokenResponse = (user, statusCode, res, message) => {
   const token = signToken(user._id);
   const cookieExpiresDays = parseInt(process.env.COOKIE_EXPIRES_IN || '7', 10);
+  const isProd = process.env.NODE_ENV === 'production';
 
   const cookieOptions = {
     expires: new Date(Date.now() + cookieExpiresDays * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
   };
 
   res.cookie('token', token, cookieOptions);

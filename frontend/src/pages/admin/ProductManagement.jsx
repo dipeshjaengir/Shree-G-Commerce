@@ -131,7 +131,7 @@ const ProductManagement = () => {
     { header: 'Product Name', key: 'name', sortable: true, render: (row) => (
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 border border-zinc-200 bg-zinc-50 shrink-0 p-1 flex items-center justify-center">
-          <img src={row.images?.[0]} alt="" className="w-full h-full object-cover grayscale" />
+          <img src={row.images?.[0]} alt="" className="w-full h-full object-cover" />
         </div>
         <div className="flex flex-col text-left">
           <span className="font-semibold uppercase">{row.name}</span>

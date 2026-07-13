@@ -10,10 +10,15 @@ import Badge from '../../components/Badge.jsx';
 import ProductCard from '../../components/ProductCard.jsx';
 import SectionTitle from '../../components/SectionTitle.jsx';
 import { MOCK_PRODUCTS } from '../../utils/mockData.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCartThunk } from '../../redux/slices/cartSlice.js';
+import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
   
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState('');
@@ -103,7 +108,7 @@ const ProductDetail = () => {
               src={activeImage}
               alt={product.name}
               style={zoomStyle}
-              className="w-full h-full object-cover grayscale transition-transform duration-100 ease-out"
+              className="w-full h-full object-cover transition-transform duration-100 ease-out"
             />
           </div>
 
@@ -118,7 +123,7 @@ const ProductDetail = () => {
                     activeImage === img ? 'border-black' : 'border-zinc-200'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover grayscale" />
+                  <img src={img} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -193,7 +198,23 @@ const ProductDetail = () => {
           <div className="flex gap-4 pt-4">
             <Button
               disabled={product.stock <= 0}
-              onClick={() => alert(`${product.name} added to cart (UI Interaction)`)}
+              onClick={async () => {
+                if (!isAuthenticated) {
+                  toast.error('Please log in to add items to your cart.');
+                  navigate('/login');
+                  return;
+                }
+                try {
+                  const resultAction = await dispatch(addToCartThunk({ productId: product._id || product.id, quantity: 1 }));
+                  if (addToCartThunk.fulfilled.match(resultAction)) {
+                    toast.success(`${product.name} added to cart!`);
+                  } else {
+                    toast.error(resultAction.payload || 'Failed to add item to cart');
+                  }
+                } catch (err) {
+                  toast.error('An error occurred. Please try again.');
+                }
+              }}
               className="flex-1"
             >
               {product.stock <= 0 ? 'Out Of Stock' : 'Add To Cart'}
@@ -234,7 +255,7 @@ const ProductDetail = () => {
             {/* Current Item */}
             <div className="flex items-center gap-2">
               <div className="w-16 h-16 border border-zinc-200 p-1 bg-zinc-50 flex items-center justify-center">
-                <img src={product.images[0]} alt="" className="w-full h-full object-cover grayscale" />
+                <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-[10px] font-semibold tracking-wider max-w-[120px] line-clamp-1">{product.name}</span>
@@ -247,7 +268,7 @@ const ProductDetail = () => {
             {/* Mock Item 1 */}
             <div className="flex items-center gap-2">
               <div className="w-16 h-16 border border-zinc-200 p-1 bg-zinc-50 flex items-center justify-center">
-                <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=100&q=80" alt="" className="w-full h-full object-cover grayscale" />
+                <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=100&q=80" alt="" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-[10px] font-semibold tracking-wider max-w-[120px] line-clamp-1">Fresh Alphonso Mangoes</span>
@@ -260,7 +281,7 @@ const ProductDetail = () => {
             {/* Mock Item 2 */}
             <div className="flex items-center gap-2">
               <div className="w-16 h-16 border border-zinc-200 p-1 bg-zinc-50 flex items-center justify-center">
-                <img src="https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=100&q=80" alt="" className="w-full h-full object-cover grayscale" />
+                <img src="https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=100&q=80" alt="" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-[10px] font-semibold tracking-wider max-w-[120px] line-clamp-1">Farm Fresh Organic Eggs</span>
@@ -275,7 +296,19 @@ const ProductDetail = () => {
               <div className="text-xl font-light">₹{product.price + 450 + 80}</div>
             </div>
             <Button
-              onClick={() => alert(`Added all 3 items to cart (UI Interaction)`)}
+              onClick={async () => {
+                if (!isAuthenticated) {
+                  toast.error('Please log in to add items to your cart.');
+                  navigate('/login');
+                  return;
+                }
+                try {
+                  await dispatch(addToCartThunk({ productId: product._id || product.id, quantity: 1 })).unwrap();
+                  toast.success('Bundle items added to cart!');
+                } catch (err) {
+                  toast.error(err || 'Failed to add bundle to cart');
+                }
+              }}
               size="sm"
             >
               Add 3 Items To Cart

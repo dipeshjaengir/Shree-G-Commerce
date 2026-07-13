@@ -48,7 +48,27 @@ connectDB().then(() => {
 app.use(helmet()); // Secure HTTP headers
 
 const corsOptions = {
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = process.env.CLIENT_URL 
+      ? process.env.CLIENT_URL.split(',').map(o => o.trim()) 
+      : [];
+
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      allowedOrigins.includes('*') ||
+                      origin.startsWith('http://localhost:') || 
+                      origin.startsWith('http://127.0.0.1:') ||
+                      origin.endsWith('.onrender.com') ||
+                      origin.endsWith('.netlify.app') ||
+                      origin.endsWith('.vercel.app');
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 };

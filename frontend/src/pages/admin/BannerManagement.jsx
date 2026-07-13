@@ -76,7 +76,7 @@ const BannerManagement = () => {
   const columns = [
     { header: 'Preview', key: 'image', render: (row) => (
       <div className="w-16 h-10 border border-zinc-200 bg-zinc-50 shrink-0 p-1 flex items-center justify-center overflow-hidden">
-        <img src={row.image} alt="" className="w-full h-full object-cover grayscale" />
+        <img src={row.image} alt="" className="w-full h-full object-cover" />
       </div>
     )},
     { header: 'Banner Title', key: 'name', sortable: true, className: 'font-semibold uppercase' },

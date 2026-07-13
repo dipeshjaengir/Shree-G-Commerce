@@ -69,7 +69,7 @@ const FileUploader = ({
         <div className="flex flex-wrap gap-3 pt-2">
           {previews.map((src, idx) => (
             <div key={idx} className="w-16 h-16 border border-zinc-200 bg-white p-1 relative flex items-center justify-center shrink-0">
-              <img src={src} alt="" className="w-full h-full object-cover grayscale" />
+              <img src={src} alt="" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => removePreview(idx)}

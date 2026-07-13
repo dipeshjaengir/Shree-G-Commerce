@@ -95,7 +95,7 @@ const CartPage = () => {
                     <img 
                       src={prod.images[0] || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=100&q=80'} 
                       alt={prod.name} 
-                      className="w-full h-full object-cover grayscale"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex flex-col text-left space-y-1">
