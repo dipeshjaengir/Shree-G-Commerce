@@ -1,22 +1,34 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
+  let url = '';
+  
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  if (typeof window !== 'undefined') {
+    url = import.meta.env.VITE_API_URL;
+  } else if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     // Auto-resolve to production Render API if running on Vercel deployment
     if (hostname.includes('vercel.app') || hostname.includes('shree-g-commerce')) {
       if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-        return 'https://shree-g-commerce.onrender.com/api';
+        url = 'https://shree-g-commerce.onrender.com/api/v1';
       }
     }
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return `${window.location.origin}/api`;
+    if (!url && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      url = `${window.location.origin}/api/v1`;
     }
   }
-  return 'http://localhost:5000/api';
+  
+  if (!url) {
+    url = 'http://localhost:5000/api/v1';
+  }
+
+  // Sanitize trailing slashes and verify/append /api/v1 or /api prefix
+  url = url.trim().replace(/\/+$/, '');
+  if (!url.endsWith('/api/v1') && !url.endsWith('/api')) {
+    url = `${url}/api/v1`;
+  }
+  
+  return url;
 };
 
 const api = axios.create({
