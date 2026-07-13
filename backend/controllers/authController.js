@@ -19,7 +19,7 @@ const signToken = (id) => {
 const sendTokenResponse = (user, statusCode, res, message) => {
   const token = signToken(user._id);
   const cookieExpiresDays = parseInt(process.env.COOKIE_EXPIRES_IN || '7', 10);
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
 
   const cookieOptions = {
     expires: new Date(Date.now() + cookieExpiresDays * 24 * 60 * 60 * 1000),
@@ -120,11 +120,12 @@ export const login = async (req, res, next) => {
 
 // 3. LOGOUT USER
 export const logout = async (req, res, next) => {
+  const isProd = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
   res.cookie('token', 'loggedout', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
   });
   return sendSuccess(res, 200, 'Logged out successfully.');
 };
