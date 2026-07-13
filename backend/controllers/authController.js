@@ -11,14 +11,25 @@ import {
 } from '../utils/appError.js';
 
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN
-  });
+  try {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    });
+  } catch (err) {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+      expiresIn: '7d'
+    });
+  }
 };
 
 const sendTokenResponse = (user, statusCode, res, message) => {
   const token = signToken(user._id);
-  const cookieExpiresDays = parseInt(process.env.COOKIE_EXPIRES_IN || '7', 10);
+  
+  let cookieExpiresDays = parseInt(process.env.COOKIE_EXPIRES_IN || '7', 10);
+  if (isNaN(cookieExpiresDays)) {
+    cookieExpiresDays = 7;
+  }
+  
   const isProd = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
 
   const cookieOptions = {

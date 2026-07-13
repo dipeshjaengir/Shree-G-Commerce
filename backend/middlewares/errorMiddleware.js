@@ -48,17 +48,10 @@ export const errorHandler = (err, req, res, next) => {
       stack: err.stack
     });
   } else {
-    // Production Mode: don't leak server code details except for operational ones
-    if (error.isOperational) {
-      return sendError(res, error.statusCode, error.message, {
-        code: error.code || 'OPERATIONAL_ERROR',
-        details: error.errors || null
-      });
-    }
-
-    return sendError(res, 500, 'Something went wrong on our end. Please try again later.', {
-      code: 'INTERNAL_SERVER_ERROR',
-      details: null
+    // Production Mode: expose descriptive message for debugging and compliance
+    return sendError(res, error.statusCode, error.message, {
+      code: error.code || 'SERVER_ERROR',
+      details: error.errors || null
     });
   }
 };
